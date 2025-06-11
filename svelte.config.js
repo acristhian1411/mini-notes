@@ -1,0 +1,22 @@
+// import adapter from '@sveltejs/adapter-auto';
+import {mdsvex} from 'mdsvex';
+import adapter from '@sveltejs/adapter-node';
+import path from 'path';
+import { preprocess } from 'svelte/compiler';
+
+const config = { 
+    extensions: ['.svelte', '.md','.mdx'],
+    kit: { 
+        adapter: adapter(),
+        alias: {
+            $notes: path.resolve('./src/lib/notes')
+        }
+    },
+    preprocess:[
+        mdsvex({
+          extensions: ['.md','.mdx'],  
+        })
+    ]
+ };
+
+export default config;
