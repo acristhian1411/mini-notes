@@ -8,7 +8,9 @@ import { preprocess } from 'svelte/compiler';
 const config = { 
     extensions: ['.svelte', '.md','.mdx'],
     kit: { 
-        adapter: adapter(),
+        adapter: adapter({
+            runtime: 'nodejs20.10',
+        }),
         alias: {
             $notes: path.resolve('./src/lib/notes')
         }
