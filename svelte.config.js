@@ -9,7 +9,7 @@ const config = {
     extensions: ['.svelte', '.md','.mdx'],
     kit: { 
         adapter: adapter({
-            runtime: 'nodejs20.10',
+            runtime: 'nodejs20.x',
         }),
         alias: {
             $notes: path.resolve('./src/lib/notes')
