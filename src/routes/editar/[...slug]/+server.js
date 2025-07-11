@@ -5,6 +5,7 @@ import { error, json } from '@sveltejs/kit';
 const base = path.resolve('src/lib/notes');
 
 export async function GET({ params }) {
+  console.log('params en editar',params)
   const file = path.join(base, `${params.slug}.md`);
   if (!fs.existsSync(file)) throw error(404, 'No existe');
 

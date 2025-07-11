@@ -25,7 +25,8 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 # Svelte
-#/src/lib/notes
+/src/lib/notes
 
 
-/static/notes/
+/static/notes
+/static/img

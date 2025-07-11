@@ -2,4 +2,3 @@
 
 ## cosas por hacer
 * algo
-  * cosa
