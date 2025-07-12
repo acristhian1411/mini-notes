@@ -1,10 +1,9 @@
 <script>
 	import '../app.css';
 	// let data = $props();
-
+	import MoveToFolder from '$lib/utils/MoveToFolder.svelte';
 	let { children, data } = $props();
 	let openFolders = $state([]); // para manejar el despliegue
-
 	const toggleFolder = (folder) => {
 		if (openFolders.includes(folder)) {
 		openFolders.splice(openFolders.indexOf(folder), 1);
@@ -16,6 +15,34 @@
 	const isFolder = (val) => typeof val === 'object';
     let showForm = $state(false);
 	
+	let editing = $state([]);
+	let newPath = $state(null);
+
+	function startEdit(name, path) {
+		console.log('name',name,'path',path)
+		editing = [name];
+		newPath = path;
+	}
+
+	async function saveEdit(){
+		newPath = newPath.trim();
+
+		if (!newPath || newPath === editing[0]) return;
+
+		const res = await fetch('/mover', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ filename: editing[0], newPath })
+		});
+
+		if (res.ok) {
+			editing = [];
+			location.reload();
+		} else {
+			alert('Error al mover o renombrar');
+		}
+	}
+
 </script>
 
 <div class="flex h-screen">
@@ -41,30 +68,67 @@
 							 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
 						  </svg>
 					</button>
-					{console.log('has key en render',openFolders.includes(key))}
 					{#if openFolders.includes(key)}
-
 					<ul id="dropdown-example" class={openFolders.includes(key) ? 'block' : 'hidden'}>
 						{#each Object.entries(val) as [fileName, filePath]}
 						<li class="flex items-center justify-between w-full p-2 rounded-lg group hover:bg-gray-100 dark:hover:bg-gray-700">
-							<a href="/{filePath}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">{fileName}</a>
-						   <a href="/descargar/{filePath}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-							⬇
-						</a>
-						</li>
-						{/each}
-					 </ul>
-					{/if}
-				 </li>
-				{:else}
-					<li>
-						<a href="/{val}" class="text-white hover:underline">{val}</a>
-						<a href={`/descargar/${val}`} class="text-sm bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded text-white ml-2" title="Descargar">
-							⬇
-						</a>
+							{#if editing.includes(filePath)}
+								<div class="mt-2 flex gap-2">
+									<input
+									bind:value={newPath}
+									class="p-1 rounded text-black w-full"
+									placeholder="Ej: nuevaCarpeta/nuevoNombre"
+									/>
+									<button onclick={() => saveEdit()} class="bg-green-600 text-white px-2 rounded">✅</button>
+									<button onclick={() => editing = []} class="bg-red-500 text-white px-2 rounded">❌</button>
+								</div>
+							{:else}	
+								<a href="/{filePath}" class="flex items-center w-full p-2 text-gray-900 transition hover:underline duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">{fileName}</a>
+								<a href="/descargar/{filePath}" class="text-sm bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded text-white ml-2">
+									⬇
+								</a>
+							{/if}
+						<button
+							class="text-sm bg-yellow-500 hover:bg-yellow-600 px-2 py-1 rounded text-white"
+							title="Renombrar / Mover"
+							onclick={() => startEdit(filePath, filePath)}
+						>
+							✏️
+						</button>
 					</li>
+					{/each}
+				</ul>
 				{/if}
+			</li>
+			{:else}
+			<li>
+				{#if editing.includes(val)}
+					<div class="mt-2 flex gap-2">
+						<input
+						bind:value={newPath}
+						class="p-1 rounded text-black w-full"
+						placeholder="Ej: nuevaCarpeta/nuevoNombre"
+						/>
+						<button onclick={() => saveEdit()} class="bg-green-600 text-white px-2 rounded">✅</button>
+						<button onclick={() => editing = []} class="bg-red-500 text-white px-2 rounded">❌</button>
+					</div>
+				{:else}	
+					<a href="/{val}" class="text-white hover:underline">{val}</a>
+					<a href={`/descargar/${val}`} class="text-sm bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded text-white ml-2" title="Descargar">
+						⬇
+					</a>
+				{/if}
+				<button
+					class="text-sm bg-yellow-500 hover:bg-yellow-600 px-2 py-1 rounded text-white"
+					title="Renombrar / Mover"
+					onclick={() => startEdit(val, val)}
+				>
+					✏️
+				</button>
+			</li>
+			{/if}
 			{/each}
+			<!-- <MoveToFolder files={data.looseFiles}/> -->
 		</ul>
 	</aside>
 	{#if showForm}
